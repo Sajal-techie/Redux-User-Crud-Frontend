@@ -1,25 +1,35 @@
 import React, { useState } from 'react';
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import {  logout } from '../../Featues/UserSlice';
 
 const Navbar = () => {
-  // State to manage the navbar's visibility
   const [nav, setNav] = useState(false);
-
-  // Toggle function to handle the navbar's display
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const user = useSelector(state=>state.user)
   const handleNav = () => {
     setNav(!nav);
   };
 
-  // Array containing navigation items
   const navItems = [
     { id: 1, text: 'Home' ,link:'/' },
-    { id: 2, text: 'Company' , link: '' },
-    { id: 3, text: 'Resources',link:'' },
-    { id: 4, text: 'Signup',link:'/signup' },
-    { id: 5, text: 'Login' ,link:'/login'},
+    { id: 2, text: 'Profile' , link: '/profile' },
   ];
+  if (user){
+    navItems.push({ id: 3, text: 'logout', logout:true })
+  }
+  else{
+    navItems.push({ id: 3, text: 'Login' ,link:'/login'})
+    navItems.push({ id: 4, text: 'Signup',link:'/signup'})
+  }
 
+  const userLogout = ()=>{
+    localStorage.removeItem('jwtTokenUser')
+    dispatch(logout())
+    navigate('/login')
+  }
   return (
     <div className='bg-black flex justify-between items-center h-24  mx-auto px-4 text-white'>
       {/* Logo */}
@@ -32,9 +42,12 @@ const Navbar = () => {
             key={item.id}
             className='p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black'
           >
-            <Link to={item.link} >
+            {
+              item.logout ? <div onClick={userLogout} >{item.text}</div> :<Link to={item.link} >
                 {item.text}
-            </Link>
+            </Link> 
+            }
+            
           </li>
         ))}
       </ul>

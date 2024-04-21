@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import { BaseUrl } from '../../Featues/Constant'
+import { BaseUrl } from '../../Featues/UserApi'
 
 const Signup = () => {
 const [name,setName] = useState('')
