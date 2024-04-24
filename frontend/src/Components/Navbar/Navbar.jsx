@@ -15,14 +15,14 @@ const Navbar = () => {
 
   const navItems = [
     { id: 1, text: 'Home' ,link:'/' },
-    { id: 2, text: 'Profile' , link: '/profile' },
   ];
   if (user){
+    navItems.push({ id: 2, text: 'Profile' , link: '/profile' })
     navItems.push({ id: 3, text: 'logout', logout:true })
   }
   else{
-    navItems.push({ id: 3, text: 'Login' ,link:'/login'})
-    navItems.push({ id: 4, text: 'Signup',link:'/signup'})
+    navItems.push({ id: 2, text: 'Login' ,link:'/login'})
+    navItems.push({ id: 3, text: 'Signup',link:'/signup'})
   }
 
   const userLogout = ()=>{
@@ -33,7 +33,7 @@ const Navbar = () => {
   return (
     <div className='bg-black flex justify-between items-center h-24  mx-auto px-4 text-white'>
       {/* Logo */}
-      <h1 className='w-full text-3xl font-bold text-[#00df9a]'>Users</h1>
+      <h1 className='w-full text-3xl font-bold text-[#00df9a] capitalize'>{user}</h1>
 
       {/* Desktop Navigation */}
       <ul className='hidden md:flex'>
@@ -66,7 +66,7 @@ const Navbar = () => {
         }
       >
         {/* Mobile Logo */}
-        <h1 className='w-full text-3xl font-bold text-[#00df9a] m-4'>REACT.</h1>
+        <h1 className='w-full text-3xl font-bold text-[#00df9a] m-4 capitalize'>{user}</h1>
 
         {/* Mobile Navigation Items */}
         {navItems.map(item => (
@@ -74,7 +74,11 @@ const Navbar = () => {
             key={item.id}
             className='p-4 border-b rounded-xl hover:bg-[#00df9a] duration-300 hover:text-black cursor-pointer border-gray-600'
           >
-            {item.text}
+            {
+              item.logout ? <div onClick={userLogout} >{item.text}</div> :<Link to={item.link} >
+                {item.text}
+            </Link> 
+            }
           </li>
         ))}
       </ul>

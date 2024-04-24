@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { BaseUrl } from '../../Featues/UserApi'
+import { useNavigate } from 'react-router-dom'
 
 const Signup = () => {
 const [name,setName] = useState('')
   const [password,setPassword] = useState('')
   const [email,setEmail] = useState('')
   const [formData,setFormData] = useState('')
+  const navigate = useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!name || !password || !email){
@@ -21,6 +23,7 @@ const [name,setName] = useState('')
       }) 
      .then(res => {
       console.log(res.data)
+      navigate('/login')
       })
      .catch(err => {
       console.log(err)

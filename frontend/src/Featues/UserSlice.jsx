@@ -18,7 +18,8 @@ export const userLogin = createAsyncThunk('user/login', async(userData)=>{
     try {
         const responce = await userApi.login(userData);
         console.log(responce,'responceeeeeeeeeeeeeeeeeee')
-        if (responce.message){
+        if (responce.status === 400){
+            return responce
             throw responce.message;
         }
         const accessToken = responce.access;
