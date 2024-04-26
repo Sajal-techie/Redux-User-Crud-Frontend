@@ -1,7 +1,7 @@
 import React from 'react'
 import { BaseUrl } from '../../Featues/UserApi';
 import axios from 'axios';
-
+import Swal from 'sweetalert2';
 const DeleteModal = ({ isOpen, onClose ,userData ,getUserList }) => {
 
    const handleDelete = (id)=>{
@@ -11,6 +11,12 @@ const DeleteModal = ({ isOpen, onClose ,userData ,getUserList }) => {
             console.log(res.data);
             getUserList();
             onClose()
+            Swal.fire({
+                icon:'success',
+                title: 'User Deleted',
+                showConfirmButton: false,
+                timer: 1500
+              })
             
         }
     ).catch((err)=>{console.log(err,'error while deleting');onClose()})

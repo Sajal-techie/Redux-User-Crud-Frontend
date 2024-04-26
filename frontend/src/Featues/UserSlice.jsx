@@ -1,33 +1,40 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { BaseUrl,userApi } from './UserApi';
+import { userApi } from './UserApi';
 import { jwtDecode } from "jwt-decode";
 
 let userjson = localStorage.getItem('jwtTokenUser');
+let adminjson = localStorage.getItem('jwtTokenAdmin');
 let decodedToken
 if (userjson){
     decodedToken = jwtDecode(userjson)
 }
+let adminDecodedToken
+if (adminjson){
+    adminDecodedToken = jwtDecode(adminjson)
+}
 const initialState = {
         user:decodedToken ? decodedToken.username : null,
-        superuser:null,
-        error:(null)
+        superuser:adminDecodedToken?adminDecodedToken.username:null,
+        is_loading:false,
 }
-
+export const userRegistration = createAsyncThunk('user/register', async(userData)=>{
+    const responce = await userApi.register(userData)
+    console.log('slice responce thunk', responce);
+    return responce
+} )
 export const userLogin = createAsyncThunk('user/login', async(userData)=>{
     try {
         const responce = await userApi.login(userData);
         console.log(responce,'responceeeeeeeeeeeeeeeeeee')
         if (responce.status === 400){
             return responce
-            throw responce.message;
         }
         const accessToken = responce.access;
         const decodeToken = jwtDecode(accessToken);
         console.log(decodeToken,'frm userlogin slice',accessToken)
-        if (decodeToken.is_admin){
+        if (responce?.loginType === 'ADMIN_LOGIN'){
             localStorage.setItem('jwtTokenAdmin',accessToken);
-        } else{
+        } else if (responce?.loginType === 'USER_LOGIN'){
             localStorage.setItem('jwtTokenUser',accessToken);
         }
         return decodeToken;
@@ -44,45 +51,62 @@ export const UserSlice = createSlice(
   name: 'users',
   initialState,
   reducers: {
-    login: (state, action) => {
-        console.log(state);
-        if (!action.payload.is_admin) {
-            state.user = action.payload;
-            state.superuser = null;
-        } else {
-            state.superuser = action.payload;
-            state.user = null;
-
-        }
-    },
+    // login: (state, action) => {
+    //     console.log(state,action,'inreducers login ');
+    //         state.user = action.payload;
+    //         console.log(state.user,'in login reducer');
+    // },
     logout : (state)=>{
-        if (state.user){
             state.user = null;
-        }else{
             state.superuser = null;
-        }
+    },
+    upateUser:(state , action) => {
+        state.user = action.payload;
     },
 },
     extraReducers:(builder)=>{
         builder
        .addCase(userLogin.fulfilled, (state, action) => {
-        console.log(action.payload);
-        state.user = action.payload.username
-        state.token = action.payload.is_admin
-        console.log(state.user,state.token);
-        
+        console.log(action.payload,'in extra reducers fulfilled');
+        if (action.payload.is_admin){
+            state.superuser = action.payload.username
+        }else{
+            state.user = action.payload.username
+        }
+        state.is_loading = false
+        console.log(state.user,state.is_loading);
        })
        .addCase(userLogin.rejected, (state, action) => {
         console.log(action.payload,'error in addcase slice');
         state.error = action.error
+        state.is_loading = false
         console.log(state.error);
        })
+       .addCase(userLogin.pending, (state) =>{
+        state.is_loading = true
+        state.user = null
+        console.log(state,'oending');
+       })
+       .addCase(userRegistration.fulfilled, (state, action) => {
+           state.is_loading = false
+           console.log(action.payload,state.is_loading,'in user registere fulfiled');
 
+       })
+       .addCase(userRegistration.rejected, (state, action) => {
+        console.log(action.payload,'error in addcase slice resgsiter');
+        state.error = action
+        state.is_loading = false
+        console.log(state.error,state.is_loading,'in rejected');
+       })
+        .addCase(userRegistration.pending,(state)=>{
+            state.is_loading = true
+            console.log(state.is_loading,'in pending');
+        })       
     }
 })
 
 
-export const { login,logout } = UserSlice.actions;
+export const { logout,upateUser } = UserSlice.actions;
 
 
 export default UserSlice.reducer;

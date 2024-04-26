@@ -8,8 +8,8 @@ export const userApi = {
             console.log(response.data,'from userAPi data');
             return response.data
         }catch(err){
-            console.log(err,'from userAPi');
-            throw err;
+            console.log(Object.values(err.response.data)[0],'from userAPi');
+            return Object.values(err.response.data)[0]
         }
     },
     login : async (userData) =>{

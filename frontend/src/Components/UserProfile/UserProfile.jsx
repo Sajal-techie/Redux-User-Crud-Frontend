@@ -4,22 +4,30 @@ import React, { useEffect, useState } from 'react'
 import { BaseUrl } from '../../Featues/UserApi';
 import { useNavigate } from 'react-router-dom';
 import defaultProfile from '../../assets/profile.webp'
+import { useDispatch } from 'react-redux';
+import {upateUser} from '../../Featues/UserSlice';
+import validator  from 'validator'
+import Swal from 'sweetalert2';
+
+
 const UserProfile = () => {
     const token =  localStorage.getItem('jwtTokenUser')
     const navigate = useNavigate()
     const [userID,setUserID] = useState() //for storing current user id 
-    // const [number,setNumber] = useState()
-    // const [email,setEmail] = useState()
+    const dispatch = useDispatch()
     const [pic,setPic] = useState() //for showing images while updating dynamically
-    
+    const [activeButton,setActiveButton] = useState(false)
     const [formData,setFormData] = useState({
         username:'',
         number:'',
         email:'',
-        user_profile:''
+        user_profile:'',
+        is_active:'',
     })
+    const style = activeButton ? {}: {display:'none'}
     console.log(formData, 'formdata',userID);
     const handleChange = (e) => {
+        setActiveButton(true)
         console.log(e.target);
         let { name, value,files } = e.target;
         if (name === 'user_profile'){
@@ -41,6 +49,33 @@ const UserProfile = () => {
     }
     const handleSubmit = (e)=>{
         e.preventDefault();
+        const {username,number} = formData
+        console.log(username,number,'username number');
+        if (!username.trim() ){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Username is required!',
+              })
+              return
+        }else if (number){
+            if (!validator.isNumeric(number)){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Number should be numeric!',
+                  })
+                  return
+            }else if (number.length!== 10){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Number should be 10 digits!',
+                  })
+                  return
+            }
+        }
+
         const sentData = new FormData()
         for (let key in formData){
             console.log(key,formData[key]);
@@ -49,7 +84,7 @@ const UserProfile = () => {
                 console.log('out',key,formData[key]);
                 if (pic !== formData.user_profile ){
                 console.log('insodesfds',key,formData[key]);
-                sentData.append(key,formData[key],'key kedata')
+                sentData.append(key,formData[key])
             }}
             else{
                 if (formData[key]){
@@ -62,7 +97,7 @@ const UserProfile = () => {
         console.log(formData,'insde sumbit',sentData);
         axios.put(`${BaseUrl}user_details/${userID}/`,sentData).then(
             (res) =>{
-                console.log(res.data);
+                console.log(res.data,'responce datt');
                 setFormData({
                     username:res.data.username,
                     number:res.data.number,
@@ -70,6 +105,16 @@ const UserProfile = () => {
                     user_profile:res.data.user_profile
                 })
                 console.log(formData);
+                dispatch(upateUser(res.data.username))
+                Swal.fire({
+                    title: 'Updated  Successfully',
+                    showConfirmButton: true,
+                    background: 'white',
+                    padding: '20px',
+                    color:'green',
+                    icon: 'success',
+                });
+                setActiveButton(false)
             }
         ).catch((err)=>{
             console.log(err,'erreeor in log');
@@ -95,7 +140,8 @@ const UserProfile = () => {
                         username:res.data.username,
                         number:res.data.number,
                         email:res.data.email,
-                        user_profile:res.data.user_profile
+                        user_profile:res.data.user_profile,
+                        is_active:res.data.is_active
                     })
                 })
                 
@@ -126,7 +172,7 @@ const UserProfile = () => {
                             className="mx-auto flex justify-center w-[141px] h-[141px] bg-blue-300/20 rounded-full bg-cover bg-center bg-no-repeat">
                             <div className="bg-white/90 rounded-full w-6 h-6 text-center ml-28 mt-4">
 
-                                <input type="file" name="user_profile" id="upload_profile" hidden defaultValue={formData.user_profile}   />
+                                <input type="file" name="user_profile" id="upload_profile" hidden defaultValue={formData.user_profile}  accept="image/*"  />
 
                                 <label htmlFor="upload_profile">
                                         <svg data-slot="icon" className="w-6 h-5 text-blue-700 cursor-pointer" fill="none"
@@ -175,10 +221,10 @@ const UserProfile = () => {
                                     placeholder="username" defaultValue={formData.username} />
                         </div>
                         <div className="w-full  mb-4 lg:mt-6">
-                            <label htmlFor="" className=" dark:text-gray-300">Email</label>
+                            <label htmlFor="" className=" dark:text-gray-300">Email (not editable) </label>
                             <input type="text" name='email'
                                     className="mt-2 p-4 w-full border-2 rounded-lg dark:text-gray-200 dark:border-gray-600 dark:bg-gray-800"
-                                    placeholder="example123@gmail.com"  defaultValue={formData.email} />
+                                    placeholder="example123@gmail.com"  defaultValue={formData.email} readOnly />
                         </div>
                         <div className="w-full  mb-4 lg:mt-6">
                             <label htmlFor="" className=" dark:text-gray-300">Mobile number</label>
@@ -205,7 +251,7 @@ const UserProfile = () => {
                         </div>
                     </div> */}
                     <div className="w-full rounded-lg bg-blue-500 mt-4 text-white text-lg font-semibold">
-                        <button type="submit" className="w-full p-4">Submit</button>
+                        <button type="submit" className="w-full p-4"  disabled={!activeButton} style={style} >Submit</button>
                     </div>
                 </form>                      
             </div>

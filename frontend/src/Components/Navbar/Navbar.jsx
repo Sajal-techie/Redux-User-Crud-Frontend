@@ -13,10 +13,9 @@ const Navbar = () => {
     setNav(!nav);
   };
 
-  const navItems = [
-    { id: 1, text: 'Home' ,link:'/' },
-  ];
+  const navItems = []
   if (user){
+    navItems.push({ id: 1, text: 'Home' ,link:'/' })
     navItems.push({ id: 2, text: 'Profile' , link: '/profile' })
     navItems.push({ id: 3, text: 'logout', logout:true })
   }
@@ -33,7 +32,7 @@ const Navbar = () => {
   return (
     <div className='bg-black flex justify-between items-center h-24  mx-auto px-4 text-white'>
       {/* Logo */}
-      <h1 className='w-full text-3xl font-bold text-[#00df9a] capitalize'>{user}</h1>
+      <h1 className='w-full text-3xl font-bold text-[#00df9a] capitalize'>{user ? user : 'user'  }</h1> 
 
       {/* Desktop Navigation */}
       <ul className='hidden md:flex'>

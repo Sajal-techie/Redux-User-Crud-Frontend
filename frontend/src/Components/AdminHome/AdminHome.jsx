@@ -45,20 +45,17 @@ const AdminHome = ({userList,getUserList}) => {
         <th scope="col" className="px-6 py-4 font-medium text-gray-900">Actions</th>
       </tr>
     </thead>
-
     <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-    {userList.length > 0 ?   
+    {userList.length > 0 ?  ( 
     <>
-    {userList.map((user)=>{
-        return(
-
+    {userList.map((user)=>(
       <tr className="hover:bg-gray-50" key={user.id}>
         <td className="px-6 py-4">{user.id}</td>
         <th className="flex gap-3 px-6 py-4 font-normal text-gray-900">
           <div className="relative h-10 w-10">
             <img
               className="h-full w-full rounded-full object-cover object-center"
-              src={user.user_profile ? user.user_profile: defaultProfile }
+              src={user.user_profile ? user.user_profile: defaultProfile}
               alt="profile"
               />
             <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
@@ -76,8 +73,7 @@ const AdminHome = ({userList,getUserList}) => {
               {user.is_active ? <span>active</span> : <span>blocked</span>  }  
           </span>
         </td>
-        <td className="px-6 py-4">{user.number ? user.number : <span>null</span> }</td>
-
+        <td className="px-6 py-4">{user.number ? user.number : <span>null</span>}</td>
         <td className="px-6 py-4 ">
           <div className="flex justify-end gap-4 ">
             <Link x-data="{ tooltip: 'Delete' }" onClick={()=> openDeleteModal(user)} >
@@ -118,7 +114,7 @@ const AdminHome = ({userList,getUserList}) => {
         </td>
       </tr>
        )
-      })} </>: <tr className='h-16'> <td className='text-center   text-lg text-black' colSpan={5}>  No User Available</td></tr>}
+      )} </>):(<tr className='h-16'><td className='text-center  text-lg text-black' colSpan={5}>No User Available</td></tr>)}
     </tbody>
   </table>
 </div>

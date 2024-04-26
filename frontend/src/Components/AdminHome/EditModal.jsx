@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";                 
 import { BaseUrl } from "../../Featues/UserApi";
+import validator  from 'validator'
+import Swal from 'sweetalert2';
+
 const EditModal = ({ isOpen, onClose, userData,getUserList }) => {
     if (!isOpen || !userData) return null;
     const [formData,setFormData] = useState({ 
@@ -19,15 +22,65 @@ const EditModal = ({ isOpen, onClose, userData,getUserList }) => {
     }
     const handleSubmit = async (event)=>{
         event.preventDefault();
-        const request = await axios.put(`${BaseUrl}user_details/${userData.id}/`,formData);
-        console.log(request.data);
-        if (request.data.id){
+        const {username,number} = formData
+        console.log(username,number,'username number');
+        if (!username.trim() ){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Username is required!',
+              })
+              return
+        }else if (number){
+            if (!validator.isNumeric(number)){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Number should be numeric!',
+                  })
+                  return
+            }else if (number.length!== 10){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Number should be 10 digits!',
+                  })
+                  return
+            }
+        }
+        try{
+
+          const request = await axios.put(`${BaseUrl}user_details/${userData.id}/`,formData);
+          console.log(request.data);
+          if (request.data.id){
             getUserList();
             onClose();
+            Swal.fire({
+              icon:'success',
+              title: 'User Updated',
+              showConfirmButton: false,
+              timer: 1500
+            })
+          }else{
+            Swal.fire({
+              icon: 'error',
+              title: 'update failed',
+              text:'something went wrong',
+            })
+          }
+          onClose();
+        } catch (err){
+          console.log(Object.values(err.response.data)[0]);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text:Object.values(err.response.data)[0],
+          })
+          onClose();
         }
-        onClose();
-    }
-    return (
+
+      }
+        return (
       <>
         {isOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none bg-gray-800 bg-opacity-50">
@@ -82,7 +135,7 @@ const EditModal = ({ isOpen, onClose, userData,getUserList }) => {
                       className="bg-indigo-500 text-white text-sm font-bold mx-4 py-3 px-4 rounded-md hover:bg-indigo-600 transition duration-300"
                       type="submit"
                     >
-                      Register
+                      Update
                     </button>
                   <div type='button' className="bg-red-600 hover:bg-red-700 px-4 py-2 mx-3 rounded text-white mr-1 " onClick={onClose}>Cancel</div>
                   </div>
